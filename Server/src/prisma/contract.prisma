@@ -1,0 +1,48 @@
+// use prisma-next
+
+model User {
+  id           Int      @id @default(autoincrement())
+  email        String   @unique
+  username     String   @unique
+  name         String?
+  passwordHash String
+  createdAt    TimestamptzString @default(now())
+  updatedAt    temporal.updatedAtString()
+}
+
+model Workspace {
+  id          Int      @id @default(autoincrement())
+  name        String
+  description String?
+  ownerId     Int
+  createdAt   TimestamptzString @default(now())
+  updatedAt   temporal.updatedAtString()
+}
+
+model WorkspaceMember {
+  id          Int      @id @default(autoincrement())
+  workspaceId Int
+  userId      Int
+  role        String   @default("MEMBER")
+  createdAt   TimestamptzString @default(now())
+}
+
+model Project {
+  id          Int      @id @default(autoincrement())
+  workspaceId Int
+  name        String
+  description String?
+  createdAt   TimestamptzString @default(now())
+  updatedAt   temporal.updatedAtString()
+}
+
+model ProjectFile {
+  id        Int      @id @default(autoincrement())
+  projectId Int
+  name      String
+  path      String
+  language  String?
+  content   String   @default("")
+  createdAt TimestamptzString @default(now())
+  updatedAt temporal.updatedAtString()
+}
