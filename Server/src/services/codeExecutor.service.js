@@ -19,6 +19,14 @@ const runProcess = (command, args, options = {}) => {
       resolve(result);
     };
 
+    // Send input to the program
+    if (options.stdin) {
+      process.stdin.write(options.stdin);
+      process.stdin.end();
+    } else {
+      process.stdin.end();
+    }
+
     process.stdout.on("data", (data) => {
       stdout += data.toString();
     });
@@ -56,19 +64,22 @@ const runProcess = (command, args, options = {}) => {
   });
 };
 
-export const executeJava = async (code, stdin = "") => {
-  const tempDirectory = await fs.mkdtemp(
+
+export const executeJava = async (
+  code,
+  stdin = "",
+  fileName = "Main.java",
+) => {  const tempDirectory = await fs.mkdtemp(
     path.join(os.tmpdir(), "codemeet-")
   );
 
-  const sourcePath = path.join(tempDirectory, "Main.java");
-
+const sourcePath = path.join(tempDirectory, fileName);
   try {
     await fs.writeFile(sourcePath, code, "utf8");
 
-    const compileResult = await runProcess(
-      "javac",
-      ["Main.java"],
+const compileResult = await runProcess(
+  "javac",
+  [fileName],
       {
         cwd: tempDirectory,
         timeout: 5000,
@@ -85,20 +96,19 @@ export const executeJava = async (code, stdin = "") => {
 
     const startTime = Date.now();
 
-    const runResult = await runProcess(
-      "java",
-      ["Main"],
-      {
-        cwd: tempDirectory,
-        timeout: 5000,
-      }
-    );
+const className = path.basename(fileName, ".java");
+
+const runResult = await runProcess(
+  "java",
+  [className],
+  {
+    cwd: tempDirectory,
+    stdin,
+    timeout: 5000,
+  }
+);
 
     const executionTime = Date.now() - startTime;
-
-    if (stdin) {
-      // stdin handling will be added in the next step
-    }
 
     return {
       output: runResult.stdout,

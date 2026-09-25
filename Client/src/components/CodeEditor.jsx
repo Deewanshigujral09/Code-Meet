@@ -15,46 +15,52 @@ const CodeEditor = ({
   const ydocRef = useRef(null);
   const bindingRef = useRef(null);
 
-const handleEditorMount = (editor) => {
-  editorRef.current = editor;
+  const handleEditorMount = (editor) => {
+    editorRef.current = editor;
 
-  const ydoc = new Y.Doc();
-  ydocRef.current = ydoc;
+    const ydoc = new Y.Doc();
+    ydocRef.current = ydoc;
 
-  const roomName = `project-${projectId}-file-${fileId}`;
-  console.log("Yjs room:", roomName);
+    const roomName = `project-${projectId}-file-${fileId}`;
+    console.log("Yjs room:", roomName);
 
-  const provider = new WebsocketProvider(
-    "ws://localhost:1234",
-    roomName,
-    ydoc
-  );
+    const provider = new WebsocketProvider(
+      "ws://localhost:1234",
+      roomName,
+      ydoc,
+    );
 
-  const ytext = ydoc.getText("monaco");
+    const ytext = ydoc.getText("monaco");
 
-  provider.on("synced", (isSynced) => {
-    console.log("Yjs synced:", isSynced);
+    provider.on("synced", (isSynced) => {
+      console.log("Yjs synced:", isSynced);
 
-    if (isSynced && ytext.length === 0 && value) {
-      ytext.insert(0, value);
-    }
-  });
+      if (isSynced && ytext.length === 0 && value) {
+        ytext.insert(0, value);
+      }
+    });
 
-  ytext.observe(() => {
-    console.log("Yjs content:", ytext.toString());
-  });
+    ytext.observe(() => {
+      const currentContent = ytext.toString();
 
-  const binding = new MonacoBinding(
-    ytext,
-    editor.getModel(),
-    new Set([editor])
-  );
+      console.log("Yjs content:", currentContent);
 
-  bindingRef.current = binding;
+      if (onChange) {
+        onChange(currentContent);
+      }
+    });
 
-  console.log("Yjs + Monaco connected");
-  console.log("Monaco mounted");
-};
+    const binding = new MonacoBinding(
+      ytext,
+      editor.getModel(),
+      new Set([editor]),
+    );
+
+    bindingRef.current = binding;
+
+    console.log("Yjs + Monaco connected");
+    console.log("Monaco mounted");
+  };
 
   useEffect(() => {
     return () => {
@@ -64,17 +70,17 @@ const handleEditorMount = (editor) => {
   }, []);
 
   return (
-<Editor
-  height="500px"
-  theme="vs-dark"
-  language={language}
-  defaultValue={value}
-  onMount={handleEditorMount}
-  options={{
-    minimap: { enabled: false },
-    fontSize: 14,
-  }}
-/>
+    <Editor
+      height="500px"
+      theme="vs-dark"
+      language={language}
+      defaultValue={value}
+      onMount={handleEditorMount}
+      options={{
+        minimap: { enabled: false },
+        fontSize: 14,
+      }}
+    />
   );
 };
 

@@ -6,8 +6,8 @@ const router = Router();
 
 router.post("/run", authenticate, async (req, res) => {
   try {
-    const { code, language, stdin } = req.body;
-
+const { code, language, fileName, stdin } = req.body;
+console.log("STDIN RECEIVED:", JSON.stringify(stdin));
     if (!code) {
       return res.status(400).json({
         message: "Code is required",
@@ -26,8 +26,11 @@ router.post("/run", authenticate, async (req, res) => {
       });
     }
 
-    const result = await executeJava(code, stdin || "");
-
+const result = await executeJava(
+  code,
+  stdin || "",
+  fileName || "Main.java"
+);
     return res.status(200).json(result);
   } catch (error) {
     console.error("Code execution error:", error);

@@ -169,7 +169,6 @@ export const updateProjectFile = async (req, res) => {
         message: "File not found",
       });
     }
-
     const updatedFile = await db.orm.public.ProjectFile
       .where({ id: fileId })
       .update({

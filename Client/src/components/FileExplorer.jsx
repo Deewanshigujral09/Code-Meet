@@ -7,12 +7,34 @@ import {
 import CodeEditor from "./CodeEditor";
 import axios from "axios";
 
-const FileExplorer = ({ projectId, token, socket }) => {
+const getLanguageFromFileName = (fileName) => {
+  const extension = fileName.split(".").pop()?.toLowerCase();
+
+  const languages = {
+    js: "javascript",
+    jsx: "javascript",
+    ts: "typescript",
+    tsx: "typescript",
+    java: "java",
+    py: "python",
+    cpp: "cpp",
+    c: "c",
+    html: "html",
+    css: "css",
+    json: "json",
+  };
+
+  return languages[extension] || "plaintext";
+};
+
+const FileExplorer = ({ projectId, token }) => {
   const [files, setFiles] = useState([]);
   const [selectedFile, setSelectedFile] = useState(null);
   const [showForm, setShowForm] = useState(false);
   const [fileName, setFileName] = useState("");
   const [output, setOutput] = useState("TEST OUTPUT");
+  const [input, setInput] = useState("");
+
   useEffect(() => {
     const loadFiles = async () => {
       try {
@@ -37,6 +59,7 @@ const FileExplorer = ({ projectId, token, socket }) => {
         {
           name: fileName,
           path: fileName,
+          language: getLanguageFromFileName(fileName),
           content: "",
         },
         token,
@@ -90,12 +113,13 @@ const FileExplorer = ({ projectId, token, socket }) => {
     }
 
     try {
-      const response = await axios.post(
+            const response = await axios.post(
         "http://localhost:5000/api/code/run",
         {
           code: selectedFile.content,
           language: selectedFile.language || "java",
-          stdin: "",
+          fileName: selectedFile.name,
+          stdin: input,
         },
         {
           headers: {
@@ -153,6 +177,21 @@ const FileExplorer = ({ projectId, token, socket }) => {
       {selectedFile && (
         <div>
           <h3>{selectedFile.name}</h3>
+
+
+          <div>
+  <h3>Input</h3>
+
+<textarea
+  value={input}
+  onInput={(e) => {
+        setInput(e.currentTarget.value);
+  }}
+  placeholder="Enter program input here..."
+  rows={5}
+/>
+</div>
+
           <CodeEditor
             projectId={projectId}
             fileId={selectedFile.id}
@@ -165,17 +204,6 @@ const FileExplorer = ({ projectId, token, socket }) => {
                 ...selectedFile,
                 content: newContent,
               });
-
-              if (socket && socket.readyState === WebSocket.OPEN) {
-                socket.send(
-                  JSON.stringify({
-                    type: "editor-change",
-                    projectId,
-                    fileId: selectedFile.id,
-                    content: newContent,
-                  }),
-                );
-              }
             }}
           />
           <button onClick={handleSaveFile}>💾 Save File</button>
