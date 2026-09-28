@@ -34,7 +34,7 @@ import type {
 } from '@prisma/orm-postgres/contract/types';
 
 export type StorageHash =
-  StorageHashBase<'9006f4da6e31787be234f5de790a130c58be9a55b163d326e4b597f5c4ce74d9'>;
+  StorageHashBase<'d6c900911f21226f0a1343380f50fa27de4915797aaec1d0d7aa00194fb4bdf1'>;
 export type ExecutionHash =
   ExecutionHashBase<'50dbd9798ec876e8f5de11d5ebc6a74a4ce5c2cd608b5f34944e358412f28288'>;
 export type ProfileHash =
@@ -249,15 +249,6 @@ export type FieldOutputTypes = {
       readonly message: CodecTypes['pg/text@1']['output'];
       readonly createdAt: CodecTypes['pg/timestamptz-string@1']['output'];
     };
-    readonly InterviewEvaluation: {
-      readonly id: CodecTypes['pg/int4@1']['output'];
-      readonly interviewId: CodecTypes['pg/int4@1']['output'];
-      readonly problemSolving: CodecTypes['pg/int4@1']['output'];
-      readonly codeQuality: CodecTypes['pg/int4@1']['output'];
-      readonly communication: CodecTypes['pg/int4@1']['output'];
-      readonly feedback: CodecTypes['pg/text@1']['output'] | null;
-      readonly createdAt: CodecTypes['pg/timestamptz-string@1']['output'];
-    };
     readonly InterviewSession: {
       readonly id: CodecTypes['pg/int4@1']['output'];
       readonly projectId: CodecTypes['pg/int4@1']['output'];
@@ -320,15 +311,6 @@ export type FieldInputTypes = {
       readonly projectId: CodecTypes['pg/int4@1']['input'];
       readonly userId: CodecTypes['pg/int4@1']['input'];
       readonly message: CodecTypes['pg/text@1']['input'];
-      readonly createdAt: CodecTypes['pg/timestamptz-string@1']['input'];
-    };
-    readonly InterviewEvaluation: {
-      readonly id: CodecTypes['pg/int4@1']['input'];
-      readonly interviewId: CodecTypes['pg/int4@1']['input'];
-      readonly problemSolving: CodecTypes['pg/int4@1']['input'];
-      readonly codeQuality: CodecTypes['pg/int4@1']['input'];
-      readonly communication: CodecTypes['pg/int4@1']['input'];
-      readonly feedback: CodecTypes['pg/text@1']['input'] | null;
       readonly createdAt: CodecTypes['pg/timestamptz-string@1']['input'];
     };
     readonly InterviewSession: {
@@ -395,15 +377,6 @@ export type StorageColumnTypes = {
       readonly projectId: CodecTypes['pg/int4@1']['output'];
       readonly userId: CodecTypes['pg/int4@1']['output'];
     };
-    readonly interviewEvaluation: {
-      readonly codeQuality: CodecTypes['pg/int4@1']['output'];
-      readonly communication: CodecTypes['pg/int4@1']['output'];
-      readonly createdAt: CodecTypes['pg/timestamptz-string@1']['output'];
-      readonly feedback: CodecTypes['pg/text@1']['output'] | null;
-      readonly id: CodecTypes['pg/int4@1']['output'];
-      readonly interviewId: CodecTypes['pg/int4@1']['output'];
-      readonly problemSolving: CodecTypes['pg/int4@1']['output'];
-    };
     readonly interviewSession: {
       readonly candidateId: CodecTypes['pg/int4@1']['output'];
       readonly createdAt: CodecTypes['pg/timestamptz-string@1']['output'];
@@ -467,15 +440,6 @@ export type StorageColumnInputTypes = {
       readonly message: CodecTypes['pg/text@1']['input'];
       readonly projectId: CodecTypes['pg/int4@1']['input'];
       readonly userId: CodecTypes['pg/int4@1']['input'];
-    };
-    readonly interviewEvaluation: {
-      readonly codeQuality: CodecTypes['pg/int4@1']['input'];
-      readonly communication: CodecTypes['pg/int4@1']['input'];
-      readonly createdAt: CodecTypes['pg/timestamptz-string@1']['input'];
-      readonly feedback: CodecTypes['pg/text@1']['input'] | null;
-      readonly id: CodecTypes['pg/int4@1']['input'];
-      readonly interviewId: CodecTypes['pg/int4@1']['input'];
-      readonly problemSolving: CodecTypes['pg/int4@1']['input'];
     };
     readonly interviewSession: {
       readonly candidateId: CodecTypes['pg/int4@1']['input'];
@@ -575,54 +539,6 @@ type ContractBase = Omit<
                   readonly nativeType: 'text';
                   readonly codecId: 'pg/text@1';
                   readonly nullable: false;
-                };
-                readonly createdAt: {
-                  readonly nativeType: 'timestamptz';
-                  readonly codecId: 'pg/timestamptz-string@1';
-                  readonly nullable: false;
-                  readonly default: { readonly kind: 'function'; readonly expression: 'now()' };
-                };
-              };
-              primaryKey: { readonly columns: readonly ['id'] };
-              uniques: readonly [];
-              indexes: readonly [];
-              foreignKeys: readonly [];
-            };
-            readonly interviewEvaluation: {
-              columns: {
-                readonly id: {
-                  readonly nativeType: 'int4';
-                  readonly codecId: 'pg/int4@1';
-                  readonly nullable: false;
-                  readonly default: {
-                    readonly kind: 'function';
-                    readonly expression: 'autoincrement()';
-                  };
-                };
-                readonly interviewId: {
-                  readonly nativeType: 'int4';
-                  readonly codecId: 'pg/int4@1';
-                  readonly nullable: false;
-                };
-                readonly problemSolving: {
-                  readonly nativeType: 'int4';
-                  readonly codecId: 'pg/int4@1';
-                  readonly nullable: false;
-                };
-                readonly codeQuality: {
-                  readonly nativeType: 'int4';
-                  readonly codecId: 'pg/int4@1';
-                  readonly nullable: false;
-                };
-                readonly communication: {
-                  readonly nativeType: 'int4';
-                  readonly codecId: 'pg/int4@1';
-                  readonly nullable: false;
-                };
-                readonly feedback: {
-                  readonly nativeType: 'text';
-                  readonly codecId: 'pg/text@1';
-                  readonly nullable: true;
                 };
                 readonly createdAt: {
                   readonly nativeType: 'timestamptz';
@@ -968,10 +884,6 @@ type ContractBase = Omit<
       readonly namespace: 'public' & NamespaceId;
       readonly model: 'InterviewSession';
     };
-    readonly interviewEvaluation: {
-      readonly namespace: 'public' & NamespaceId;
-      readonly model: 'InterviewEvaluation';
-    };
   };
   readonly domain: {
     readonly namespaces: {
@@ -1012,55 +924,6 @@ type ContractBase = Omit<
                 readonly projectId: { readonly column: 'projectId' };
                 readonly userId: { readonly column: 'userId' };
                 readonly message: { readonly column: 'message' };
-                readonly createdAt: { readonly column: 'createdAt' };
-              };
-            };
-          };
-          readonly InterviewEvaluation: {
-            readonly fields: {
-              readonly id: {
-                readonly nullable: false;
-                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/int4@1' };
-              };
-              readonly interviewId: {
-                readonly nullable: false;
-                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/int4@1' };
-              };
-              readonly problemSolving: {
-                readonly nullable: false;
-                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/int4@1' };
-              };
-              readonly codeQuality: {
-                readonly nullable: false;
-                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/int4@1' };
-              };
-              readonly communication: {
-                readonly nullable: false;
-                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/int4@1' };
-              };
-              readonly feedback: {
-                readonly nullable: true;
-                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
-              };
-              readonly createdAt: {
-                readonly nullable: false;
-                readonly type: {
-                  readonly kind: 'scalar';
-                  readonly codecId: 'pg/timestamptz-string@1';
-                };
-              };
-            };
-            readonly relations: Record<string, never>;
-            readonly storage: {
-              readonly table: 'interviewEvaluation';
-              readonly namespaceId: 'public';
-              readonly fields: {
-                readonly id: { readonly column: 'id' };
-                readonly interviewId: { readonly column: 'interviewId' };
-                readonly problemSolving: { readonly column: 'problemSolving' };
-                readonly codeQuality: { readonly column: 'codeQuality' };
-                readonly communication: { readonly column: 'communication' };
-                readonly feedback: { readonly column: 'feedback' };
                 readonly createdAt: { readonly column: 'createdAt' };
               };
             };

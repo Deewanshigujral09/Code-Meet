@@ -1,6 +1,8 @@
 import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
+import "./chatSocket.js";
+
 
 import codeRoutes from "./routes/code.routes.js";
 import authRoutes from "./routes/auth.routes.js";
@@ -8,7 +10,8 @@ import testRoutes from "./routes/test.routes.js";
 import workspaceRoutes from "./routes/workspace.routes.js";
 import projectRoutes from "./routes/project.routes.js";
 import fileRoutes from "./routes/file.routes.js";
-
+import chatRoutes from "./routes/chat.routes.js";
+import interviewRoutes from "./routes/interview.routes.js";
 dotenv.config();
 
 const app = express();
@@ -22,6 +25,8 @@ app.use("/api/test", testRoutes);
 app.use("/api/workspaces", workspaceRoutes);
 app.use("/api", projectRoutes);
 app.use("/api", fileRoutes);
+app.use("/api", chatRoutes);
+app.use("/api", interviewRoutes);
 
 app.get("/", (req, res) => {
   res.json({

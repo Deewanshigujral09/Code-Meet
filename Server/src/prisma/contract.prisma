@@ -48,9 +48,32 @@ model ProjectFile {
 }
 
 model ChatMessage {
+  id        Int      @id @default(autoincrement())
+  projectId Int
+  userId    Int
+  message   String
+  createdAt TimestamptzString @default(now())
+}
+
+model InterviewSession {
   id          Int      @id @default(autoincrement())
   projectId   Int
-  userId      Int
-  message     String
+  interviewerId Int
+  candidateId Int
+  problemTitle String
+  problemDescription String
+  durationMinutes Int   @default(30)
+  status      String   @default("WAITING")
   createdAt   TimestamptzString @default(now())
+}
+
+
+model InterviewEvaluation {
+  id              Int      @id @default(autoincrement())
+  interviewId     Int
+  problemSolving  Int
+  codeQuality     Int
+  communication   Int
+  feedback        String?
+  createdAt       TimestamptzString @default(now())
 }

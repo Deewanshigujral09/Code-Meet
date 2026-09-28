@@ -10,6 +10,7 @@ const CodeEditor = ({
   value,
   language = "plaintext",
   onChange,
+  onPresenceChange,
 }) => {
   const editorRef = useRef(null);
   const ydocRef = useRef(null);
@@ -29,6 +30,14 @@ const CodeEditor = ({
       roomName,
       ydoc,
     );
+
+    provider.awareness.on("change", () => {
+  const users = Array.from(provider.awareness.getStates().values());
+
+  if (onPresenceChange) {
+    onPresenceChange(users.length);
+  }
+});
 
     const ytext = ydoc.getText("monaco");
 
@@ -71,7 +80,7 @@ const CodeEditor = ({
 
   return (
     <Editor
-      height="500px"
+      height="100%"
       theme="vs-dark"
       language={language}
       defaultValue={value}
