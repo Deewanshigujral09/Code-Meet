@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+
 import {
   FolderKanban,
   Plus,
@@ -9,23 +10,48 @@ import {
   CalendarDays,
 } from "lucide-react";
 
-import {
-  getWorkspaceProjects,
-  createProject,
-} from "../services/projectApi";
+import { getWorkspaceProjects, createProject } from "../services/projectApi";
+
+import { getWorkspaceMembers } from "../services/memberApi";
 
 const ProjectList = ({ workspaceId, token, onSelectProject }) => {
+  // =========================
+  // PROJECT STATE
+  // =========================
+
   const [projects, setProjects] = useState([]);
+  const [members, setMembers] = useState([]);
   const [loading, setLoading] = useState(true);
+
+  // =========================
+  // CREATE PROJECT STATE
+  // =========================
 
   const [showForm, setShowForm] = useState(false);
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
 
+  // =========================
+  // SEARCH STATE
+  // =========================
+
+  const [searchText, setSearchText] = useState("");
+
+  // =========================
+  // LOAD PROJECTS
+  // =========================
+
   const loadProjects = async () => {
     try {
+      setLoading(true);
+
       const data = await getWorkspaceProjects(workspaceId, token);
-      setProjects(data);
+
+      setProjects(data || []);
+
+      const memberData = await getWorkspaceMembers(workspaceId, token);
+
+      setMembers(memberData || []);
     } catch (error) {
       console.error("Failed to load projects:", error);
     } finally {
@@ -37,25 +63,27 @@ const ProjectList = ({ workspaceId, token, onSelectProject }) => {
     loadProjects();
   }, [workspaceId, token]);
 
+  // =========================
+  // CREATE PROJECT
+  // =========================
+
   const handleCreateProject = async () => {
     if (!name.trim()) {
       return;
     }
 
     try {
+      console.log("TOKEN:", token);
       const newProject = await createProject(
         workspaceId,
         {
-          name,
-          description,
+          name: name.trim(),
+          description: description.trim(),
         },
-        token
+        token,
       );
 
-      setProjects((currentProjects) => [
-        ...currentProjects,
-        newProject,
-      ]);
+      setProjects((currentProjects) => [...currentProjects, newProject]);
 
       setName("");
       setDescription("");
@@ -64,6 +92,27 @@ const ProjectList = ({ workspaceId, token, onSelectProject }) => {
       console.error("Failed to create project:", error);
     }
   };
+
+  // =========================
+  // FILTER PROJECTS
+  // =========================
+
+  const filteredProjects = projects.filter((project) => {
+    const search = searchText.trim().toLowerCase();
+
+    if (!search) {
+      return true;
+    }
+
+    return (
+      project.name?.toLowerCase().includes(search) ||
+      project.description?.toLowerCase().includes(search)
+    );
+  });
+
+  // =========================
+  // LOADING
+  // =========================
 
   if (loading) {
     return (
@@ -79,22 +128,34 @@ const ProjectList = ({ workspaceId, token, onSelectProject }) => {
     );
   }
 
+  // =========================
+  // MAIN UI
+  // =========================
+
   return (
     <div
       style={{
+        width: "100%",
         maxWidth: "1200px",
         margin: "0 auto",
+        boxSizing: "border-box",
       }}
     >
-      {/* Header */}
+      {/* ========================================
+          HEADER
+      ======================================== */}
+
       <div
         style={{
           display: "flex",
           justifyContent: "space-between",
           alignItems: "flex-start",
-          marginBottom: "32px",
+          marginBottom: "28px",
+          gap: "20px",
         }}
       >
+        {/* LEFT SIDE */}
+
         <div>
           <div
             style={{
@@ -129,6 +190,8 @@ const ProjectList = ({ workspaceId, token, onSelectProject }) => {
           </p>
         </div>
 
+        {/* NEW PROJECT BUTTON */}
+
         <button
           onClick={() => setShowForm(true)}
           style={{
@@ -143,6 +206,7 @@ const ProjectList = ({ workspaceId, token, onSelectProject }) => {
             fontSize: "14px",
             fontWeight: "600",
             cursor: "pointer",
+            flexShrink: 0,
           }}
         >
           <Plus size={18} />
@@ -150,21 +214,160 @@ const ProjectList = ({ workspaceId, token, onSelectProject }) => {
         </button>
       </div>
 
-      {/* Search / project count */}
+      {/* ========================================
+          DASHBOARD STATS
+
+          IMPORTANT:
+          This is OUTSIDE the header.
+      ======================================== */}
+
+      <div
+        style={{
+          width: "100%",
+          display: "flex",
+          gap: "16px",
+          marginBottom: "28px",
+          boxSizing: "border-box",
+        }}
+      >
+        {/* TOTAL PROJECTS */}
+
+        <div
+          style={{
+            flex: 1,
+            minWidth: 0,
+            minHeight: "105px",
+            background: "#0f172a",
+            border: "1px solid #1e293b",
+            borderRadius: "12px",
+            padding: "18px 22px",
+            boxSizing: "border-box",
+          }}
+        >
+          <div
+            style={{
+              color: "#94a3b8",
+              fontSize: "13px",
+              marginBottom: "10px",
+            }}
+          >
+            Total Projects
+          </div>
+
+          <div
+            style={{
+              fontSize: "28px",
+              fontWeight: "700",
+              color: "#f8fafc",
+            }}
+          >
+            {projects.length}
+          </div>
+        </div>
+
+        {/* ACTIVE PROJECTS */}
+
+        <div
+          style={{
+            flex: 1,
+            minWidth: 0,
+            minHeight: "105px",
+            background: "#0f172a",
+            border: "1px solid #1e293b",
+            borderRadius: "12px",
+            padding: "18px 22px",
+            boxSizing: "border-box",
+          }}
+        >
+          <div
+            style={{
+              color: "#94a3b8",
+              fontSize: "13px",
+              marginBottom: "10px",
+            }}
+          >
+            Team Members
+          </div>
+
+          <div
+            style={{
+              fontSize: "28px",
+              fontWeight: "700",
+              color: "#818cf8",
+            }}
+          >
+            {members.length}
+          </div>
+        </div>
+
+        {/* WORKSPACE */}
+
+        <div
+          style={{
+            flex: 1,
+            minWidth: 0,
+            minHeight: "105px",
+            background: "#0f172a",
+            border: "1px solid #1e293b",
+            borderRadius: "12px",
+            padding: "18px 22px",
+            boxSizing: "border-box",
+          }}
+        >
+          <div
+            style={{
+              color: "#94a3b8",
+              fontSize: "13px",
+              marginBottom: "10px",
+            }}
+          >
+            Workspace
+          </div>
+
+          <div
+            style={{
+              fontSize: "20px",
+              fontWeight: "600",
+              color: "#f8fafc",
+            }}
+          >
+            Code Meet
+          </div>
+
+          <div
+            style={{
+              color: "#22c55e",
+              fontSize: "12px",
+              marginTop: "4px",
+            }}
+          >
+            ● Active
+          </div>
+        </div>
+      </div>
+
+      {/* ========================================
+          SEARCH + PROJECT COUNT
+      ======================================== */}
+
       <div
         style={{
           display: "flex",
           justifyContent: "space-between",
           alignItems: "center",
+          gap: "20px",
           marginBottom: "20px",
         }}
       >
+        {/* SEARCH */}
+
         <div
           style={{
             display: "flex",
             alignItems: "center",
             gap: "10px",
-            width: "300px",
+            width: "320px",
+            maxWidth: "100%",
             height: "40px",
             background: "#0f172a",
             border: "1px solid #1e293b",
@@ -176,6 +379,9 @@ const ProjectList = ({ workspaceId, token, onSelectProject }) => {
           <Search size={17} color="#64748b" />
 
           <input
+            type="text"
+            value={searchText}
+            onChange={(e) => setSearchText(e.target.value)}
             placeholder="Search projects..."
             style={{
               flex: 1,
@@ -188,19 +394,25 @@ const ProjectList = ({ workspaceId, token, onSelectProject }) => {
           />
         </div>
 
+        {/* COUNT */}
+
         <span
           style={{
             color: "#64748b",
             fontSize: "13px",
+            whiteSpace: "nowrap",
           }}
         >
-          {projects.length}{" "}
-          {projects.length === 1 ? "project" : "projects"}
+          {filteredProjects.length}{" "}
+          {filteredProjects.length === 1 ? "project" : "projects"}
         </span>
       </div>
 
-      {/* Projects */}
-      {projects.length === 0 ? (
+      {/* ========================================
+          PROJECT LIST
+      ======================================== */}
+
+      {filteredProjects.length === 0 ? (
         <div
           style={{
             border: "1px dashed #334155",
@@ -213,7 +425,9 @@ const ProjectList = ({ workspaceId, token, onSelectProject }) => {
           <Code2
             size={42}
             color="#6366f1"
-            style={{ marginBottom: "15px" }}
+            style={{
+              marginBottom: "15px",
+            }}
           />
 
           <h3
@@ -222,7 +436,7 @@ const ProjectList = ({ workspaceId, token, onSelectProject }) => {
               color: "#f8fafc",
             }}
           >
-            No projects yet
+            {searchText.trim() ? "No projects found" : "No projects yet"}
           </h3>
 
           <p
@@ -232,33 +446,42 @@ const ProjectList = ({ workspaceId, token, onSelectProject }) => {
               fontSize: "14px",
             }}
           >
-            Create your first project and start coding.
+            {searchText.trim()
+              ? "Try a different project name."
+              : "Create your first project and start coding."}
           </p>
 
-          <button
-            onClick={() => setShowForm(true)}
-            style={{
-              background: "#6366f1",
-              color: "#ffffff",
-              border: "none",
-              borderRadius: "7px",
-              padding: "10px 16px",
-              cursor: "pointer",
-            }}
-          >
-            Create Project
-          </button>
+          {!searchText.trim() && (
+            <button
+              onClick={() => setShowForm(true)}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.background = "#4f46e5";
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.background = "#6366f1";
+              }}
+              style={{
+                background: "#6366f1",
+                color: "#ffffff",
+                border: "none",
+                borderRadius: "7px",
+                padding: "10px 16px",
+                cursor: "pointer",
+              }}
+            >
+              Create Project
+            </button>
+          )}
         </div>
       ) : (
         <div
           style={{
             display: "grid",
-            gridTemplateColumns:
-              "repeat(auto-fill, minmax(280px, 1fr))",
+            gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))",
             gap: "18px",
           }}
         >
-          {projects.map((project) => (
+          {filteredProjects.map((project) => (
             <div
               key={project.id}
               onClick={() => onSelectProject(project)}
@@ -274,16 +497,17 @@ const ProjectList = ({ workspaceId, token, onSelectProject }) => {
               }}
               onMouseEnter={(e) => {
                 e.currentTarget.style.borderColor = "#4f46e5";
-                e.currentTarget.style.transform =
-                  "translateY(-2px)";
+
+                e.currentTarget.style.transform = "translateY(-2px)";
               }}
               onMouseLeave={(e) => {
                 e.currentTarget.style.borderColor = "#1e293b";
-                e.currentTarget.style.transform =
-                  "translateY(0)";
+
+                e.currentTarget.style.transform = "translateY(0)";
               }}
             >
-              {/* Icon */}
+              {/* PROJECT ICON */}
+
               <div
                 style={{
                   width: "42px",
@@ -299,18 +523,32 @@ const ProjectList = ({ workspaceId, token, onSelectProject }) => {
                 <Code2 size={21} color="#818cf8" />
               </div>
 
-              {/* Project name */}
-              <h3
+              {/* PROJECT NAME */}
+
+              <div
                 style={{
-                  margin: "0 0 8px",
-                  color: "#f8fafc",
-                  fontSize: "17px",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "10px",
+                  marginBottom: "8px",
                 }}
               >
-                {project.name}
-              </h3>
+                <FolderKanban size={20} color="#818cf8" />
 
-              {/* Description */}
+                <h3
+                  style={{
+                    margin: 0,
+                    color: "#f8fafc",
+                    fontSize: "17px",
+                    fontWeight: "600",
+                  }}
+                >
+                  {project.name}
+                </h3>
+              </div>
+
+              {/* DESCRIPTION */}
+
               <p
                 style={{
                   margin: "0 0 20px",
@@ -323,7 +561,8 @@ const ProjectList = ({ workspaceId, token, onSelectProject }) => {
                 {project.description || "No description provided."}
               </p>
 
-              {/* Footer */}
+              {/* FOOTER */}
+
               <div
                 style={{
                   display: "flex",
@@ -343,20 +582,20 @@ const ProjectList = ({ workspaceId, token, onSelectProject }) => {
                   }}
                 >
                   <CalendarDays size={13} />
-                  Project
+                  Project #{project.id}
                 </div>
 
-                <ArrowRight
-                  size={17}
-                  color="#64748b"
-                />
+                <ArrowRight size={17} color="#64748b" />
               </div>
             </div>
           ))}
         </div>
       )}
 
-      {/* Create Project Modal */}
+      {/* ========================================
+          CREATE PROJECT MODAL
+      ======================================== */}
+
       {showForm && (
         <div
           style={{
@@ -373,6 +612,7 @@ const ProjectList = ({ workspaceId, token, onSelectProject }) => {
           <div
             style={{
               width: "420px",
+              maxWidth: "calc(100vw - 32px)",
               background: "#0f172a",
               border: "1px solid #334155",
               borderRadius: "14px",
@@ -381,7 +621,8 @@ const ProjectList = ({ workspaceId, token, onSelectProject }) => {
               boxShadow: "0 20px 60px rgba(0,0,0,0.4)",
             }}
           >
-            {/* Modal header */}
+            {/* MODAL HEADER */}
+
             <div
               style={{
                 display: "flex",
@@ -425,7 +666,8 @@ const ProjectList = ({ workspaceId, token, onSelectProject }) => {
               </button>
             </div>
 
-            {/* Name */}
+            {/* PROJECT NAME */}
+
             <label
               style={{
                 display: "block",
@@ -456,7 +698,8 @@ const ProjectList = ({ workspaceId, token, onSelectProject }) => {
               }}
             />
 
-            {/* Description */}
+            {/* DESCRIPTION */}
+
             <label
               style={{
                 display: "block",
@@ -488,7 +731,8 @@ const ProjectList = ({ workspaceId, token, onSelectProject }) => {
               }}
             />
 
-            {/* Buttons */}
+            {/* BUTTONS */}
+
             <div
               style={{
                 display: "flex",
@@ -517,16 +761,12 @@ const ProjectList = ({ workspaceId, token, onSelectProject }) => {
                   display: "flex",
                   alignItems: "center",
                   gap: "7px",
-                  background: name.trim()
-                    ? "#6366f1"
-                    : "#312e81",
+                  background: name.trim() ? "#6366f1" : "#312e81",
                   color: "#ffffff",
                   border: "none",
                   borderRadius: "7px",
                   padding: "10px 16px",
-                  cursor: name.trim()
-                    ? "pointer"
-                    : "not-allowed",
+                  cursor: name.trim() ? "pointer" : "not-allowed",
                 }}
               >
                 <Plus size={16} />

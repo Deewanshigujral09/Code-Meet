@@ -16,6 +16,10 @@
       "model": "InterviewSession",
       "namespace": "public"
     },
+    "notification": {
+      "model": "Notification",
+      "namespace": "public"
+    },
     "project": {
       "model": "Project",
       "namespace": "public"
@@ -282,6 +286,87 @@
               },
               "namespaceId": "public",
               "table": "interviewSession"
+            }
+          },
+          "Notification": {
+            "fields": {
+              "createdAt": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/timestamptz-string@1",
+                  "kind": "scalar"
+                }
+              },
+              "id": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/int4@1",
+                  "kind": "scalar"
+                }
+              },
+              "isRead": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/bool@1",
+                  "kind": "scalar"
+                }
+              },
+              "message": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "title": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "type": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "userId": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/int4@1",
+                  "kind": "scalar"
+                }
+              }
+            },
+            "relations": {},
+            "storage": {
+              "fields": {
+                "createdAt": {
+                  "column": "createdAt"
+                },
+                "id": {
+                  "column": "id"
+                },
+                "isRead": {
+                  "column": "isRead"
+                },
+                "message": {
+                  "column": "message"
+                },
+                "title": {
+                  "column": "title"
+                },
+                "type": {
+                  "column": "type"
+                },
+                "userId": {
+                  "column": "userId"
+                }
+              },
+              "namespaceId": "public",
+              "table": "notification"
             }
           },
           "Project": {
@@ -841,6 +926,69 @@
               },
               "uniques": []
             },
+            "notification": {
+              "columns": {
+                "createdAt": {
+                  "codecId": "pg/timestamptz-string@1",
+                  "default": {
+                    "expression": "now()",
+                    "kind": "function"
+                  },
+                  "nativeType": "timestamptz",
+                  "nullable": false
+                },
+                "id": {
+                  "codecId": "pg/int4@1",
+                  "default": {
+                    "expression": "autoincrement()",
+                    "kind": "function"
+                  },
+                  "nativeType": "int4",
+                  "nullable": false
+                },
+                "isRead": {
+                  "codecId": "pg/bool@1",
+                  "default": {
+                    "kind": "literal",
+                    "value": false
+                  },
+                  "nativeType": "bool",
+                  "nullable": false
+                },
+                "message": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": false
+                },
+                "title": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": false
+                },
+                "type": {
+                  "codecId": "pg/text@1",
+                  "default": {
+                    "kind": "literal",
+                    "value": "INFO"
+                  },
+                  "nativeType": "text",
+                  "nullable": false
+                },
+                "userId": {
+                  "codecId": "pg/int4@1",
+                  "nativeType": "int4",
+                  "nullable": false
+                }
+              },
+              "foreignKeys": [],
+              "indexes": [],
+              "primaryKey": {
+                "columns": [
+                  "id"
+                ]
+              },
+              "uniques": []
+            },
             "project": {
               "columns": {
                 "createdAt": {
@@ -1126,7 +1274,7 @@
         "kind": "postgres-schema"
       }
     },
-    "storageHash": "9006f4da6e31787be234f5de790a130c58be9a55b163d326e4b597f5c4ce74d9"
+    "storageHash": "bad9a8beea427e4eeaa54efdbf835ff8193395730f89701cdfc3359d24a73397"
   },
   "execution": {
     "executionHash": "50dbd9798ec876e8f5de11d5ebc6a74a4ce5c2cd608b5f34944e358412f28288",

@@ -21,7 +21,7 @@ const router = Router();
 router.post(
   "/workspaces/:workspaceId/projects",
   authenticate,
-  requireWorkspaceAdmin,
+  requireWorkspaceMember,
   createProject
 );
 

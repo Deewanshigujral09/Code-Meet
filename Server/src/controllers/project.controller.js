@@ -23,6 +23,22 @@ export const createProject = async (req, res) => {
       description,
     });
 
+    const members = await db.orm.public.WorkspaceMember
+  .where({
+    workspaceId: req.params.workspaceId,
+  })
+  .all();
+
+for (const member of members) {
+  if (member.userId !== req.user.userId) {
+await db.orm.public.Notification.create({
+  userId: member.userId,
+  title: "New project created",
+  message: `${project.name} was created in your workspace`,
+  type: "PROJECT_CREATED",
+});
+  }
+}
     return res.status(201).json({
       message: "Project created successfully",
       project,

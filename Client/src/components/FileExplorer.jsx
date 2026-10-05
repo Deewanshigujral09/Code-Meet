@@ -281,33 +281,31 @@ const FileExplorer = ({ projectId, token }) => {
               fontSize: "12px",
             }}
           >
-<div
-  style={{
-    display: "flex",
-    alignItems: "center",
-    gap: "8px",
-  }}
->
-  <span
-    style={{
-      width: "7px",
-      height: "7px",
-      borderRadius: "50%",
-      background: "#22c55e",
-      boxShadow: "0 0 8px #22c55e",
-    }}
-  />
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: "8px",
+              }}
+            >
+              <span
+                style={{
+                  width: "7px",
+                  height: "7px",
+                  borderRadius: "50%",
+                  background: "#22c55e",
+                  boxShadow: "0 0 8px #22c55e",
+                }}
+              />
 
-  <span style={{ color: "#94a3b8", fontSize: "12px" }}>
-    Live
-  </span>
+              <span style={{ color: "#94a3b8", fontSize: "12px" }}>Live</span>
 
-  <Users size={15} color="#94a3b8" />
+              <Users size={15} color="#94a3b8" />
 
-  <span style={{ color: "#cbd5e1", fontSize: "12px" }}>
-    {collaboratorCount}
-  </span>
-</div>
+              <span style={{ color: "#cbd5e1", fontSize: "12px" }}>
+                {collaboratorCount}
+              </span>
+            </div>
           </div>
         </div>
       </div>
@@ -343,16 +341,33 @@ const FileExplorer = ({ projectId, token }) => {
               boxSizing: "border-box",
             }}
           >
-            <span
+            <div
               style={{
-                color: "#94a3b8",
-                fontSize: "11px",
-                fontWeight: "700",
-                letterSpacing: "0.08em",
+                display: "flex",
+                alignItems: "center",
+                gap: "7px",
               }}
             >
-              EXPLORER
-            </span>
+              <span
+                style={{
+                  color: "#94a3b8",
+                  fontSize: "11px",
+                  fontWeight: "700",
+                  letterSpacing: "0.08em",
+                }}
+              >
+                EXPLORER
+              </span>
+
+              <span
+                style={{
+                  color: "#475569",
+                  fontSize: "10px",
+                }}
+              >
+                {files.length}
+              </span>
+            </div>
 
             <button
               onClick={() => setShowForm(true)}
@@ -376,40 +391,73 @@ const FileExplorer = ({ projectId, token }) => {
               padding: "10px 8px",
             }}
           >
-            {files.map((file) => {
-              const active = selectedFile?.id === file.id;
-
-              return (
-                <div
-                  key={file.id}
-                  onClick={() => setSelectedFile(file)}
+            {files.length === 0 ? (
+              <div
+                style={{
+                  padding: "30px 12px",
+                  textAlign: "center",
+                  color: "#475569",
+                  fontSize: "11px",
+                }}
+              >
+                <FileCode2
+                  size={24}
                   style={{
-                    display: "flex",
-                    alignItems: "center",
-                    gap: "9px",
-                    padding: "9px 10px",
-                    marginBottom: "3px",
-                    borderRadius: "6px",
-                    background: active ? "#1e293b" : "transparent",
-                    color: active ? "#f8fafc" : "#94a3b8",
-                    cursor: "pointer",
-                    fontSize: "13px",
+                    marginBottom: "8px",
+                    opacity: 0.6,
+                  }}
+                />
+
+                <div>No files yet</div>
+
+                <div
+                  style={{
+                    marginTop: "4px",
+                    color: "#334155",
                   }}
                 >
-                  <FileCode2 size={15} color={active ? "#818cf8" : "#64748b"} />
+                  Create a file to start coding
+                </div>
+              </div>
+            ) : (
+              files.map((file) => {
+                const active = selectedFile?.id === file.id;
 
-                  <span
+                return (
+                  <div
+                    key={file.id}
+                    onClick={() => setSelectedFile(file)}
                     style={{
-                      overflow: "hidden",
-                      textOverflow: "ellipsis",
-                      whiteSpace: "nowrap",
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "9px",
+                      padding: "9px 10px",
+                      marginBottom: "3px",
+                      borderRadius: "6px",
+                      background: active ? "#1e293b" : "transparent",
+                      color: active ? "#f8fafc" : "#94a3b8",
+                      cursor: "pointer",
+                      fontSize: "13px",
                     }}
                   >
-                    {file.name}
-                  </span>
-                </div>
-              );
-            })}
+                    <FileCode2
+                      size={15}
+                      color={active ? "#818cf8" : "#64748b"}
+                    />
+
+                    <span
+                      style={{
+                        overflow: "hidden",
+                        textOverflow: "ellipsis",
+                        whiteSpace: "nowrap",
+                      }}
+                    >
+                      {file.name}
+                    </span>
+                  </div>
+                );
+              })
+            )}
           </div>
 
           {/* New file */}
@@ -421,6 +469,12 @@ const FileExplorer = ({ projectId, token }) => {
           >
             <button
               onClick={() => setShowForm(true)}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.background = "#1e293b";
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.background = "#111827";
+              }}
               style={{
                 width: "100%",
                 display: "flex",
@@ -476,7 +530,18 @@ const FileExplorer = ({ projectId, token }) => {
                   }}
                 >
                   <FileCode2 size={15} color="#818cf8" />
-                  {selectedFile.name}
+                  <span
+                    style={{
+                      padding: "3px 7px",
+                      borderRadius: "5px",
+                      background: "#1e293b",
+                      color: "#818cf8",
+                      fontSize: "10px",
+                      textTransform: "uppercase",
+                    }}
+                  >
+                    {getLanguageFromFileName(selectedFile.name).toUpperCase()}
+                  </span>
                 </div>
                 <div
                   style={{
@@ -555,7 +620,18 @@ const FileExplorer = ({ projectId, token }) => {
                     }}
                   >
                     <Terminal size={15} />
-                    TERMINAL
+
+                    <span>TERMINAL</span>
+
+                    <span
+                      style={{
+                        color: isRunning ? "#f59e0b" : "#64748b",
+                        fontSize: "10px",
+                        fontWeight: "500",
+                      }}
+                    >
+                      {isRunning ? "Running..." : "Ready"}
+                    </span>
                   </div>
 
                   <div
@@ -567,6 +643,14 @@ const FileExplorer = ({ projectId, token }) => {
                     <button
                       onClick={handleSaveFile}
                       disabled={isSaving}
+                      onMouseEnter={(e) => {
+                        if (!isSaving) {
+                          e.currentTarget.style.background = "#1e293b";
+                        }
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.background = "#111827";
+                      }}
                       style={{
                         display: "flex",
                         alignItems: "center",
@@ -587,6 +671,16 @@ const FileExplorer = ({ projectId, token }) => {
                     <button
                       onClick={handleRunCode}
                       disabled={isRunning}
+                      onMouseEnter={(e) => {
+                        if (!isRunning) {
+                          e.currentTarget.style.background = "#4f46e5";
+                        }
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.background = isRunning
+                          ? "#3730a3"
+                          : "#6366f1";
+                      }}
                       style={{
                         display: "flex",
                         alignItems: "center",
@@ -633,7 +727,16 @@ const FileExplorer = ({ projectId, token }) => {
                         marginBottom: "6px",
                       }}
                     >
-                      INPUT
+                      <span>INPUT</span>
+
+                      <span
+                        style={{
+                          color: "#475569",
+                          fontSize: "9px",
+                        }}
+                      >
+                        stdin
+                      </span>
                     </div>
 
                     <textarea
@@ -675,7 +778,16 @@ const FileExplorer = ({ projectId, token }) => {
                         marginBottom: "6px",
                       }}
                     >
-                      OUTPUT
+                      <span>OUTPUT</span>
+
+                      <span
+                        style={{
+                          color: "#475569",
+                          fontSize: "9px",
+                        }}
+                      >
+                        stdout
+                      </span>
                     </div>
 
                     <pre
@@ -793,6 +905,12 @@ const FileExplorer = ({ projectId, token }) => {
               placeholder="e.g. Main.java"
               value={fileName}
               onChange={(e) => setFileName(e.target.value)}
+              onFocus={(e) => {
+                e.currentTarget.style.borderColor = "#6366f1";
+              }}
+              onBlur={(e) => {
+                e.currentTarget.style.borderColor = "#334155";
+              }}
               style={{
                 width: "100%",
                 height: "42px",
@@ -831,6 +949,16 @@ const FileExplorer = ({ projectId, token }) => {
               <button
                 onClick={handleCreateFile}
                 disabled={!fileName.trim()}
+                onMouseEnter={(e) => {
+                  if (fileName.trim()) {
+                    e.currentTarget.style.background = "#4f46e5";
+                  }
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.background = fileName.trim()
+                    ? "#6366f1"
+                    : "#312e81";
+                }}
                 style={{
                   background: fileName.trim() ? "#6366f1" : "#312e81",
                   border: "none",

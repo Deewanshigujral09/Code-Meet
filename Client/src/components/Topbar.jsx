@@ -1,22 +1,23 @@
-import { useState } from "react";
-import {
-  Search,
-  Bell,
-  ChevronDown,
-  LogOut,
-  FolderKanban,
-} from "lucide-react";
+import { useEffect, useState } from "react";
+import { Search, Bell, ChevronDown, LogOut, FolderKanban } from "lucide-react";
 import { removeToken } from "../services/authStorage";
+import axios from "axios";
+import { markNotificationRead } from "../services/notificationApi";
 
 const Topbar = ({ projects = [] }) => {
   const [profileOpen, setProfileOpen] = useState(false);
   const [searchText, setSearchText] = useState("");
-
+  const [notificationOpen, setNotificationOpen] = useState(false);
+  const [notifications, setNotifications] = useState([]);
+  const token = localStorage.getItem("token");
   const filteredProjects = projects.filter((project) =>
-    project.name
-      ?.toLowerCase()
-      .includes(searchText.trim().toLowerCase())
+    project.name?.toLowerCase().includes(searchText.trim().toLowerCase()),
   );
+
+
+  const unreadCount = notifications.filter(
+  (notification) => !notification.isRead
+).length;
 
   // rest of your code...
 
@@ -27,14 +28,33 @@ const Topbar = ({ projects = [] }) => {
   };
 
   const handleProjectClick = (project) => {
-    localStorage.setItem(
-      "selectedProject",
-      JSON.stringify(project)
-    );
+    localStorage.setItem("selectedProject", JSON.stringify(project));
 
     // Reload so App.jsx opens the selected project
     window.location.reload();
   };
+
+  
+
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+
+    if (!token) return;
+
+
+    axios
+      .get("http://localhost:5000/api/notifications", {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      })
+.then((response) => {
+  setNotifications(response.data);
+})
+      .catch((error) => {
+        console.error("Failed to load notifications:", error);
+      });
+  }, []);
 
   return (
     <header
@@ -73,17 +93,12 @@ const Topbar = ({ projects = [] }) => {
             boxSizing: "border-box",
           }}
         >
-          <Search
-            size={18}
-            color="#9ca3af"
-          />
+          <Search size={18} color="#9ca3af" />
 
           <input
             type="text"
             value={searchText}
-            onChange={(e) =>
-              setSearchText(e.target.value)
-            }
+            onChange={(e) => setSearchText(e.target.value)}
             placeholder="Search projects, files..."
             style={{
               flex: 1,
@@ -122,8 +137,7 @@ const Topbar = ({ projects = [] }) => {
               borderRadius: "10px",
               padding: "8px",
               boxSizing: "border-box",
-              boxShadow:
-                "0 10px 30px rgba(0,0,0,0.4)",
+              boxShadow: "0 10px 30px rgba(0,0,0,0.4)",
               zIndex: 1000,
               maxHeight: "300px",
               overflowY: "auto",
@@ -146,9 +160,7 @@ const Topbar = ({ projects = [] }) => {
                 {filteredProjects.map((project) => (
                   <div
                     key={project.id}
-                    onClick={() =>
-                      handleProjectClick(project)
-                    }
+                    onClick={() => handleProjectClick(project)}
                     style={{
                       display: "flex",
                       alignItems: "center",
@@ -159,18 +171,13 @@ const Topbar = ({ projects = [] }) => {
                       color: "#e5e7eb",
                     }}
                     onMouseEnter={(e) => {
-                      e.currentTarget.style.background =
-                        "#1f2937";
+                      e.currentTarget.style.background = "#1f2937";
                     }}
                     onMouseLeave={(e) => {
-                      e.currentTarget.style.background =
-                        "transparent";
+                      e.currentTarget.style.background = "transparent";
                     }}
                   >
-                    <FolderKanban
-                      size={17}
-                      color="#818cf8"
-                    />
+                    <FolderKanban size={17} color="#818cf8" />
 
                     <div>
                       <div
@@ -223,30 +230,150 @@ const Topbar = ({ projects = [] }) => {
         }}
       >
         {/* Notification */}
-        <button
+  {/* Notification */}
+<div style={{ position: "relative" }}>
+  <button
+    onClick={() => setNotificationOpen((current) => !current)}
+    style={{
+      position: "relative",
+      background: "transparent",
+      border: "none",
+      color: "#d1d5db",
+      cursor: "pointer",
+      padding: "6px",
+      borderRadius: "6px",
+    }}
+  >
+    <Bell size={20} />
+
+{unreadCount > 0 && (
+  <span
+    style={{
+      position: "absolute",
+      top: "-5px",
+      right: "-5px",
+      minWidth: "17px",
+      height: "17px",
+      padding: "0 4px",
+      borderRadius: "999px",
+      background: "#6366f1",
+      color: "#ffffff",
+      fontSize: "9px",
+      fontWeight: "700",
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center",
+      border: "2px solid #0f172a",
+    }}
+  >
+    {unreadCount > 9 ? "9+" : unreadCount}
+  </span>
+)}
+  </button>
+
+  {notificationOpen && (
+    <div
+      style={{
+        position: "absolute",
+        top: "42px",
+        right: 0,
+        width: "300px",
+        background: "#0f172a",
+        border: "1px solid #1e293b",
+        borderRadius: "10px",
+        boxShadow: "0 15px 40px rgba(0,0,0,0.4)",
+        zIndex: 100,
+        overflow: "hidden",
+      }}
+    >
+      <div
+        style={{
+          padding: "14px 16px",
+          borderBottom: "1px solid #1e293b",
+          color: "#f8fafc",
+          fontSize: "14px",
+          fontWeight: "600",
+        }}
+      >
+        Notifications
+      </div>
+
+      {notifications.length === 0 ? (
+        <div
           style={{
-            position: "relative",
-            background: "transparent",
-            border: "none",
-            color: "#d1d5db",
-            cursor: "pointer",
+            padding: "22px 16px",
+            color: "#64748b",
+            fontSize: "12px",
+            textAlign: "center",
           }}
         >
-          <Bell size={20} />
-
-          <span
+          <Bell
+            size={22}
             style={{
-              position: "absolute",
-              top: "-3px",
-              right: "-3px",
-              width: "7px",
-              height: "7px",
-              borderRadius: "50%",
-              background: "#6366f1",
+              marginBottom: "8px",
+              opacity: 0.6,
             }}
           />
-        </button>
 
+          <div>No new notifications</div>
+        </div>
+      ) : (
+        notifications.map((notification) => (
+<div
+  key={notification.id}
+  onClick={async () => {
+    if (notification.isRead) return;
+
+    try {
+      await markNotificationRead(
+        notification.id,
+        token
+      );
+
+      setNotifications((current) =>
+        current.map((item) =>
+          item.id === notification.id
+            ? { ...item, isRead: true }
+            : item
+        )
+      );
+    } catch (error) {
+      console.error(
+        "Failed to mark notification as read:",
+        error
+      );
+    }
+  }}
+  style={{
+              padding: "12px 16px",
+              borderBottom: "1px solid #1e293b",
+              color: "#cbd5e1",
+              fontSize: "12px",
+              cursor: "pointer",
+              background: notification.isRead
+                ? "transparent"
+                : "rgba(99, 102, 241, 0.08)",
+            }}
+          >
+            <div
+              style={{
+                color: "#f8fafc",
+                marginBottom: "4px",
+                fontWeight: "600",
+              }}
+            >
+              {notification.title}
+            </div>
+
+            <div style={{ color: "#64748b" }}>
+              {notification.message}
+            </div>
+          </div>
+        ))
+      )}
+    </div>
+  )}
+</div>
         {/* ================= PROFILE ================= */}
 
         <div
@@ -255,9 +382,7 @@ const Topbar = ({ projects = [] }) => {
           }}
         >
           <div
-            onClick={() =>
-              setProfileOpen(!profileOpen)
-            }
+            onClick={() => setProfileOpen(!profileOpen)}
             style={{
               display: "flex",
               alignItems: "center",
@@ -308,9 +433,7 @@ const Topbar = ({ projects = [] }) => {
               size={16}
               color="#9ca3af"
               style={{
-                transform: profileOpen
-                  ? "rotate(180deg)"
-                  : "rotate(0deg)",
+                transform: profileOpen ? "rotate(180deg)" : "rotate(0deg)",
                 transition: "0.2s",
               }}
             />
@@ -328,16 +451,14 @@ const Topbar = ({ projects = [] }) => {
                 border: "1px solid #374151",
                 borderRadius: "10px",
                 padding: "8px",
-                boxShadow:
-                  "0 10px 30px rgba(0,0,0,0.4)",
+                boxShadow: "0 10px 30px rgba(0,0,0,0.4)",
                 zIndex: 1000,
               }}
             >
               <div
                 style={{
                   padding: "10px 12px",
-                  borderBottom:
-                    "1px solid #1f2937",
+                  borderBottom: "1px solid #1f2937",
                   marginBottom: "6px",
                 }}
               >
@@ -378,12 +499,10 @@ const Topbar = ({ projects = [] }) => {
                   textAlign: "left",
                 }}
                 onMouseEnter={(e) => {
-                  e.currentTarget.style.background =
-                    "#1f2937";
+                  e.currentTarget.style.background = "#1f2937";
                 }}
                 onMouseLeave={(e) => {
-                  e.currentTarget.style.background =
-                    "transparent";
+                  e.currentTarget.style.background = "transparent";
                 }}
               >
                 <LogOut size={17} />

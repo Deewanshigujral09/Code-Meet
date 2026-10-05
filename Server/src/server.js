@@ -12,6 +12,7 @@ import projectRoutes from "./routes/project.routes.js";
 import fileRoutes from "./routes/file.routes.js";
 import chatRoutes from "./routes/chat.routes.js";
 import interviewRoutes from "./routes/interview.routes.js";
+import notificationRoutes from "./routes/notification.routes.js";
 dotenv.config();
 
 const app = express();
@@ -27,6 +28,7 @@ app.use("/api", projectRoutes);
 app.use("/api", fileRoutes);
 app.use("/api", chatRoutes);
 app.use("/api", interviewRoutes);
+app.use("/api", notificationRoutes);
 
 app.get("/", (req, res) => {
   res.json({
